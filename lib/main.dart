@@ -1,19 +1,86 @@
+import 'package:firstapp/models/cart_item.dart';
 import 'package:flutter/material.dart';
+import 'package:firstapp/components/product_list.dart'; // Importar el widget de la lista de productos
+import 'package:firstapp/components/cart_view.dart'; // Importar la vista del carrito
+import 'package:firstapp/controllers/cart_controller.dart'; // Importar el controlador del carrito
 
 void main() {
-  runApp(const MaterialApp(
+  runApp(MaterialApp(
     home: MarketApp(),
   ));
 }
 
-class MarketApp extends StatelessWidget {
-  const MarketApp({super.key});
+class MarketApp extends StatefulWidget {
+  const MarketApp({Key? key}) : super(key: key);
+
+  @override
+  _MarketAppState createState() => _MarketAppState();
+}
+
+class _MarketAppState extends State<MarketApp> {
+  final CartController cartController = CartController();
+
+  @override
+  void initState() {
+    super.initState();
+    // Suscribe a los cambios en el número de elementos en el carrito
+    cartController.cartItems.addListener(updateCartItemCount);
+  }
+
+  @override
+  void dispose() {
+    // Libera los recursos cuando se destruye el widget
+    cartController.cartItems.removeListener(updateCartItemCount);
+    super.dispose();
+  }
+
+  // Método para actualizar el número de elementos en el carrito
+  void updateCartItemCount() {
+    setState(() {}); // Reconstruye el widget para actualizar el número
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Fruteria Estrellita'),
+        actions: [
+          Stack(
+            children: [
+              IconButton(
+                icon: Icon(Icons.shopping_cart),
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => CartView(
+                            cartItems: cartController.cartItems.value)),
+                  );
+                },
+              ),
+              Positioned(
+                right: 5,
+                top: 5,
+                child: CircleAvatar(
+                  backgroundColor: Colors.green,
+                  radius: 10,
+                  child: ValueListenableBuilder<List<CartItem>>(
+                    valueListenable: cartController.cartItems,
+                    builder: (context, items, _) {
+                      return Text(
+                        '${items.length}',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 12,
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -33,6 +100,7 @@ class MarketApp extends StatelessWidget {
                 const Text(
                   'Lista de Productos',
                   style: TextStyle(
+                    fontFamily: 'Montserrat',
                     fontWeight: FontWeight.bold,
                     fontSize: 24.0,
                   ),
@@ -41,91 +109,9 @@ class MarketApp extends StatelessWidget {
             ),
           ),
           Expanded(
-            child: ListView(
-              children: const [
-                ProductCard(
-                  productName: 'Papaya',
-                  productContent: '1kg',
-                  productPrice: 10.00,
-                  imageUrl: 'https://images.unsplash.com/photo-1517282009859-f000ec3b26fe?q=80&w=1587&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
-                ),
-                ProductCard(
-                  productName: 'Pera',
-                  productContent: '500g',
-                  productPrice: 8.50,
-                  imageUrl: 'https://plus.unsplash.com/premium_photo-1669905375079-5d7e074fc123?q=80&w=1587&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
-                ),
-                ProductCard(
-                  productName: 'Manzana',
-                  productContent: '750g',
-                  productPrice: 12.00,
-                  imageUrl: 'https://images.unsplash.com/photo-1579613832125-5d34a13ffe2a?q=80&w=1470&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
-                ),
-              ],
-            ),
+            child: ProductList(cartController: cartController),
           ),
         ],
-      ),
-    );
-  }
-}
-
-class ProductCard extends StatelessWidget {
-  final String productName;
-  final String productContent;
-  final double productPrice;
-  final String imageUrl;
-
-  const ProductCard({
-    required this.productName,
-    required this.productContent,
-    required this.productPrice,
-    required this.imageUrl,
-    super.key,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      margin: const EdgeInsets.all(10.0),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Row(
-          children: [
-            Image.network(
-              imageUrl,
-              width: 100,
-              height: 100,
-              fit: BoxFit.cover,
-            ),
-            const SizedBox(width: 20),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  productName,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 18.0,
-                  ),
-                ),
-                Text(
-                  'Contenido: $productContent',
-                  style: const TextStyle(
-                    fontSize: 16.0,
-                  ),
-                ),
-              ],
-            ),
-            const Spacer(),
-            Text(
-              'S/.${productPrice.toStringAsFixed(2)}',
-              style: const TextStyle(
-                fontSize: 16.0,
-              ),
-            ),
-          ],
-        ),
       ),
     );
   }
