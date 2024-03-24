@@ -23,20 +23,17 @@ class _MarketAppState extends State<MarketApp> {
   @override
   void initState() {
     super.initState();
-    // Suscribe a los cambios en el número de elementos en el carrito
     cartController.cartItems.addListener(updateCartItemCount);
   }
 
   @override
   void dispose() {
-    // Libera los recursos cuando se destruye el widget
     cartController.cartItems.removeListener(updateCartItemCount);
     super.dispose();
   }
 
-  // Método para actualizar el número de elementos en el carrito
   void updateCartItemCount() {
-    setState(() {}); // Reconstruye el widget para actualizar el número
+    setState(() {});
   }
 
   @override
@@ -55,7 +52,9 @@ class _MarketAppState extends State<MarketApp> {
                     MaterialPageRoute(
                         builder: (context) => CartView(
                             cartItems: cartController.cartItems.value)),
-                  );
+                  ).then((_) {
+                    updateCartItemCount();
+                  });
                 },
               ),
               Positioned(
@@ -67,8 +66,9 @@ class _MarketAppState extends State<MarketApp> {
                   child: ValueListenableBuilder<List<CartItem>>(
                     valueListenable: cartController.cartItems,
                     builder: (context, items, _) {
+                      final itemCount = items.length;
                       return Text(
-                        '${items.length}',
+                        '$itemCount',
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 12,
