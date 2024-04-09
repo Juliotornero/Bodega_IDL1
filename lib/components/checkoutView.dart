@@ -14,7 +14,8 @@ class _CheckoutViewState extends State<CheckoutView> {
   late String selectedPaymentMethod = 'Cash';
   late String name;
   late String phoneNumber;
-  late String address = 'Obtener Ubicación'; // Inicializa la dirección con un valor predeterminado
+  late String address =
+      'Obtener Ubicación'; // Inicializa la dirección con un valor predeterminado
   File? imageFile;
 
   final ImagePicker _picker = ImagePicker();
@@ -69,10 +70,13 @@ class _CheckoutViewState extends State<CheckoutView> {
                     desiredAccuracy: LocationAccuracy.high,
                   );
                   List<Placemark> placemarks = await placemarkFromCoordinates(
-                      position.latitude, position.longitude); // Obtiene la dirección a partir de la latitud y longitud
+                      position.latitude,
+                      position
+                          .longitude); // Obtiene la dirección a partir de la latitud y longitud
                   Placemark place = placemarks[0];
                   setState(() {
-                    address = '${place.street}, ${place.subLocality}, ${place.locality}'; // Actualiza la dirección con la dirección obtenida
+                    address =
+                        '${place.street}, ${place.subLocality}, ${place.locality}'; // Actualiza la dirección con la dirección obtenida
                   });
                 } catch (e) {
                   print('Error al obtener la ubicación: $e');
@@ -104,7 +108,38 @@ class _CheckoutViewState extends State<CheckoutView> {
             SizedBox(height: 16.0),
             ElevatedButton(
               onPressed: () {
-                // Implementar lógica para realizar la compra
+                // Mostrar el modal al hacer clic en el botón
+                showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return AlertDialog(
+                      title: Row(
+                        children: [
+                          Icon(
+                            Icons.check_circle,
+                            color: Colors.green,
+                          ),
+                          SizedBox(width: 8),
+                          Text('Pedido Realizado'),
+                        ],
+                      ),
+                      content:
+                          Text('Hemos recibido tu pedido, ¡vuelve pronto!'),
+                      actions: [
+                        TextButton(
+                          onPressed: () {
+                            Navigator.of(context).pop(); // Cerrar el modal
+                            Navigator.popUntil(
+                                context,
+                                ModalRoute.withName(
+                                    '/')); // Volver a la ruta principal
+                          },
+                          child: Text('Cerrar'),
+                        ),
+                      ],
+                    );
+                  },
+                );
               },
               child: Text('Realizar Compra'),
             ),
