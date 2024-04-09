@@ -1,3 +1,4 @@
+import 'package:firstapp/components/checkoutView.dart';
 import 'package:flutter/material.dart';
 import 'package:firstapp/models/cart_item.dart';
 
@@ -62,7 +63,10 @@ class _CartViewState extends State<CartView> {
           ),
           ElevatedButton(
             onPressed: () {
-              // Lógica para proceder al pago
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => CheckoutView()),
+              );
             },
             child: Text('Proceder al Pago'),
           ),
